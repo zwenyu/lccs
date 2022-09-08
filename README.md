@@ -44,3 +44,7 @@ From `lccs/imcls/results_scripts/`, first run `./collect_results.sh` and then `.
   url       = {https://doi.org/10.24963/ijcai.2022/232},
 }
 ```
+
+## Acknowledgements
+
+Our implementation is based off the repository [MixStyle](https://github.com/KaiyangZhou/mixstyle-release). Thanks to the MixStyle implementation.
