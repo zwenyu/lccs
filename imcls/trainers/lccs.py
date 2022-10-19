@@ -1,13 +1,11 @@
 import os
 import os.path as osp
 import json
-import time
 import random
 import copy
 import numpy as np
 
 import torch
-import torch.optim as optim
 from torch.nn import functional as F
 
 from dassl.utils import set_random_seed
@@ -24,7 +22,7 @@ class AbstractLCCS(Vanilla):
     """Abstract class for LCCS trainer.
     """
 
-    def __init__(self, cfg, batch_size=32, ksupport=1, init_epochs=10, grad_update_epochs=10,
+    def __init__(self, cfg, batch_size=32, ksupport=1, init_epochs=10, grad_update_epochs=10, classifier_update_epochs=200,
         user_support_coeff_init=None, classifier_type='linear', finetune_classifier=False, svd_dim=1):
         """
         Args:
@@ -45,6 +43,7 @@ class AbstractLCCS(Vanilla):
         self.ksupport = ksupport
         self.init_epochs = init_epochs
         self.grad_update_epochs = grad_update_epochs
+        self.classifier_update_epochs = classifier_update_epochs
         self.user_support_coeff_init = user_support_coeff_init
         self.classifier_type = classifier_type
         self.finetune_classifier = finetune_classifier
@@ -154,7 +153,6 @@ class AbstractLCCS(Vanilla):
                     self.model.backbone.set_coeff(i, 1. - i)
                     set_random_seed(self.cfg.SEED)
                     cross_entropy_list = []
-                    accuracy_list = []
                     # iterate through support set for init_epochs
                     len_support_loader_train_transform = len(self.support_loader_train_transform)
                     for j in range(self.init_epochs):
@@ -234,7 +232,7 @@ class AbstractLCCS(Vanilla):
                 betas=(0.9, 0.999),
                 weight_decay=0)
             self.model_optms = self.train(self.model_optms, optimizer, self.support_loader_train_transform, self.support_loader_test_transform,
-                grad_update_epochs=self.grad_update_epochs, num_classes=self.num_classes, classifier_type=self.classifier_type)
+                grad_update_epochs=self.classifier_update_epochs, num_classes=self.num_classes, classifier_type=self.classifier_type)
 
     def train(self, model_optms, optimizer, support_loader_train_transform, support_loader_test_transform, grad_update_epochs, num_classes,
         classifier_type='linear', initialize_centroid=False):
@@ -345,6 +343,7 @@ class AbstractLCCS(Vanilla):
 
 # define trainers
 
+
 # source classifier
 @TRAINER_REGISTRY.register()
 class LCCSk1n7(AbstractLCCS):
@@ -372,3 +371,13 @@ class LCCSCentroidk5n35(AbstractLCCS):
 class LCCSCentroidk10n70(AbstractLCCS):
     def __init__(self, cfg):
         super().__init__(cfg, batch_size=32, ksupport=10, init_epochs=10, grad_update_epochs=10, svd_dim=70, classifier_type='mean_centroid')
+
+# linear layer classifier
+@TRAINER_REGISTRY.register()
+class LCCSLineark5n155(AbstractLCCS):
+    def __init__(self, cfg):
+        super().__init__(cfg, batch_size=32, ksupport=5, init_epochs=10, grad_update_epochs=10, svd_dim=155, finetune_classifier=True)
+@TRAINER_REGISTRY.register()
+class LCCSLineark5n325(AbstractLCCS):
+    def __init__(self, cfg):
+        super().__init__(cfg, batch_size=32, ksupport=5, init_epochs=10, grad_update_epochs=10, svd_dim=325, finetune_classifier=True)
