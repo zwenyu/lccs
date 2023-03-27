@@ -12,7 +12,7 @@ We used NVIDIA container image for PyTorch, release 20.12, to run experiments.
 
 ### Dataset
 
-This demonstration runs on [PACS](https://drive.google.com/uc?id=1m4X4fROCCXMO0lRLrr6Zz9Vb3974NWh). Please download the dataset and save in `lccs/imcls/data/`.
+This demonstration runs on [PACS](https://drive.google.com/uc?id=1JFr8f805nMUelQWWmfnJR3y4_SYoN5Pd). Please download the dataset and save in `lccs/imcls/data/`.
 
 ## Training and Evaluation
 
